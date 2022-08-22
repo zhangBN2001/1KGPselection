@@ -1,0 +1,15 @@
+a<-read.table("all.counts.split.log10.fisher")
+b <- a
+m <- dim(a)[1]
+c <- dim(a)[2]
+for( i in 3:c){
+        orders <- rev(order(a[,i]))
+        for ( j in 1:m){
+                a[orders[j],i] <- a[orders[j],i] + log10(j/m)
+                if (j %% 1000 ==0 ){
+                        print(j)
+                }
+        }
+        print(i)
+}
+write.table(a,"all.counts.split.log10.fisher.BHadjusted",quote=FALSE,col.names=FALSE,row.names=FALSE)
