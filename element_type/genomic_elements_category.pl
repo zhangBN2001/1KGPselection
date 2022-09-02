@@ -17,6 +17,7 @@ while(<FA>){
 }
 close FA;
 
+
 print "fa done\n";
 
 my $gene_count=0;
