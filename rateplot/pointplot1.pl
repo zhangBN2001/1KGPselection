@@ -6,15 +6,18 @@ while(<INL>){
 	if($i=~/^#/){
 	}else{
 		chomp $i;
-		@line=split /\t/ ,$i;
+		@line=split /\s+/ ,$i;
 		$num=0;
 		$all=0;
-		for $line(@line){
-			if($line=~/|/){
+		foreach $line(@line){
+			if($line=~/\d[|]\d/){
+				#print $line."\n";
 				$all+=1;
-				@nub=split /|/ ,$line;
+				#print $num."\n";
+				@nub=split /[|]/ ,$line;
 				if($nub[0]==1){$num+=1;}
 				if($nub[1]==1){$num+=1;}
+				#print $num."\n";
 			}
 		}
 		print  OUT $line[1]."\t".$num."\n";
@@ -23,10 +26,6 @@ while(<INL>){
 close INL;
 close OUT;
 print 2*$all."\n";
-
-
-
-
 
 
 

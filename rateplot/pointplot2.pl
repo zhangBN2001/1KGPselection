@@ -45,21 +45,23 @@ while(<INL>){
 }
 close INL;
 open INL , "$in_list " or die $!;
+my $max_plot2=0;
 while(<INL>){
 	chomp;
 	my @line=split /\s+/ ,$_;
-	if($line[1]>$maxplot){
-#		$maxplot=$line[1];
+	if($line[1]>$max_plot2){
+	$max_plot2=$line[1];
 	}
 	$pos2{$line[0]}=$line[1];
 }
 print $maxplot."\n";
+print $max_plot2."\n";
 close INL;
 foreach my $ps(keys(%pos2)){
 	print MID $ps."\t".$pos2{$ps}."\n";
 }
 close MID;
-print $xlen_min."\n";
+#print $xlen_min."\n";
 my $xlen=$xlen_max-$xlen_min;
 
 my  $ru_height = 20;
@@ -90,7 +92,10 @@ foreach my $pos(sort {$a<=>$b} keys %pos)
 print $het."\n";
 my $scl_ind=0;
 my $scl_width=1;
-open IN3,"mid.list" or die $!;
+$svg->line('x1',$offset_x-6*$sq_width,'y1',$yos+1*$sq_width,'x2',$offset_x-6*$sq_width,'y2',$yos+$het+1*$sq_width,'stroke-width',1,'stroke','black');
+$svg->line('x1',$offset_x-5*$sq_width,'y1',$yos+1*$sq_width,'x2',$offset_x-12*$sq_width,'y2',$yos+1*$sq_width,'stroke-width',1,'stroke','black');
+$svg->line('x1',$offset_x-5*$sq_width,'y1',$yos+$het+1*$sq_width,'x2',$offset_x-12*$sq_width,'y2',$yos+$het+1*$sq_width,'stroke-width',1,'stroke','black');
+open IN3,"cat mid.list|sort -u -k1,1n |" or die $!;
 #<IN3>;
 while (<IN3>)
 {
@@ -98,35 +103,64 @@ while (<IN3>)
         chomp;
         my @aa = split /\s+/;
 	$aa[1] = $aa[1]/$maxplot*$het;
-        my ($y0,$x0)=($yos  + 2 * $sq_width  , $offset_x + 2 * $sq_width *($ind{$aa[0]})-2*$sq_width);
-        my ($y1,$x1)=($y0,$x0+4*$sq_width);
-        my ($y2,$x2)=($y0+$aa[1],$x0);
-        my ($y3,$x3)=($y0+$aa[1],$x0+4*$sq_width);
-	($y0,$x0)=($y3-4*$sq_width,$x0);
-	($y1,$x1)=($y0,$x1);
-#	$svg->rect('x1',$x0,'y1',$y0,'x2',$x2,'y2',$y2,'stroke','black');
-#}
-#
-        my $xv = [$x0,$x1,$x3,$x2];
-        my $yv = [$y0,$y1,$y3,$y2];
+	if(
+		$aa[0]==108897145||
+		$aa[0]==108413111||
+		$aa[0]==108380806||
+		$aa[0]==108834662||
+		$aa[0]==108465596||
+		$aa[0]==108746109||
+		$aa[0]==108601445||
+		$aa[0]==108501059||
+		$aa[0]==108501232||
+		$aa[0]==108502395||
+		$aa[0]==108745706||
+		$aa[0]==108955052||
+		$aa[0]==108927427||
+		$aa[0]==108320249){
+		my ($y0,$x0)=($yos  + 2 * $sq_width  , $offset_x + 2 * $sq_width *($ind{$aa[0]})-2*$sq_width);
+	        my ($y1,$x1)=($y0,$x0+4*$sq_width);
+        	my ($y2,$x2)=($y0+$aa[1],$x0);
+        	my ($y3,$x3)=($y0+$aa[1],$x0+4*$sq_width);
+        	($y0,$x0)=($y3-4*$sq_width,$x0);
+        	($y1,$x1)=($y0,$x1);
+                my $xv = [$x0,$x1,$x3,$x2];
+                my $yv = [$y0,$y1,$y3,$y2];
+                my $points = $svg->get_path(
+                	x => $xv,
+                        y => $yv,
+                );
+		my $tag = $svg->path(
+                	%$points,
+                        style => {
+                        	'fill'   => 'red',
+                                'stroke' => 'red',
+                                'stroke-width' => 0.01
+                        }                                                                   
+		);
+	}else{			
+        	my ($y0,$x0)=($yos  + 2 * $sq_width  , $offset_x + 2 * $sq_width *($ind{$aa[0]})-2*$sq_width);
+	        my ($y1,$x1)=($y0,$x0+4*$sq_width);
+        	my ($y2,$x2)=($y0+$aa[1],$x0);
+	        my ($y3,$x3)=($y0+$aa[1],$x0+4*$sq_width);
+		($y0,$x0)=($y3-4*$sq_width,$x0);
+		($y1,$x1)=($y0,$x1);
+	        my $xv = [$x0,$x1,$x3,$x2];
+        	my $yv = [$y0,$y1,$y3,$y2];
+	        my $points = $svg->get_path(
+            		x => $xv,
+            		y => $yv,
+        	);
 
-        my $points = $svg->get_path(
-            x => $xv,
-            y => $yv,
-#            -type   => 'path',
-#            -closed => 'true'  #specify that the polyline is closed
-        );
-
-        my $tag = $svg->path(
-            %$points,
-#            id    => "$ind{$aa[2]}.$ind{$aa[5]}",
-            style => {
-#                'f/hwfssz5/ST_HEALTH/P18Z10200N0124/zhangbeining/lib/perl5ill-opacity' => $aa[7],
-                'fill'   => 'black',
-                'stroke' => 'black',
-                'stroke-width' => 0.01
-            }
-        );
+        	my $tag = $svg->path(
+            		%$points,
+            		style => {
+                		'fill'   => 'black',
+                		'stroke' => 'black',
+                		'stroke-width' => 0.01
+            		}
+        	);
+	}
 }
 close IN3;
 
@@ -135,15 +169,6 @@ open OUT,">$out_svg" or die $!;
 my $out = $svg->xmlify;
 
 print OUT "$out";
-
-
-
-
-
-
-
-
-
 
 
 
